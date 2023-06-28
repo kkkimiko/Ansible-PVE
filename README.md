@@ -15,7 +15,7 @@ Table of Content
 ----------------------------------------------
 
 **Note**
-This repo is re-built based on [Ansible role to create/delete VM/containers on proxmox](https://github.com/pvelati/ansible-role-proxmox-kvm-mgmt/tree/master) as I encountered some issues by using his ansible roles within my env.
+This repo is re-built based on [Ansible role to create/delete VM/containers on proxmox](https://github.com/pvelati/ansible-role-proxmox-kvm-mgmt/tree/master) as I encountered several issues while testing in my env.
 
 Fixed issue list:
 1. When using vm template to clone a new VM, bootdisk can't be resized. Resolve by running proxmox rest api to resize the bootdisk size.
