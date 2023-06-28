@@ -1,0 +1,273 @@
+---
+# TL;DR variables for quick use
+global_api_host: '<your-proxmox-host-ip>'
+global_description: "Created with Ansible on {{ ansible_date_time.date }}"
+global_node: '<your-proxmox-node>'
+global_keyboard: ''
+
+# Overwrite default variables for all VMs
+global:
+  acpi: 'yes'
+  # Enable QEMU Agent, remember to install qemu-guest-agent on VMs 
+  agent: 'no'
+
+  api_host: '{{ global_api_host }}'
+  api_password: '{{ credentials.password if credentials.get("password") else lookup("env","PROXMOX_PASSWORD") }}'
+  api_user: '{{ credentials.username if credentials.get("username") else lookup("env","PROXMOX_USER") }}'
+  api_token_secret: '{{ credentials.api_token_secret if credentials.get("api_token_secret") else lookup("env","PROXMOX_TOKEN_SECRET") }}'
+  api_token_id: '{{ credentials.api_token_id if credentials.get("api_token_id") else lookup("env","PROXMOX_TOKEN_ID") }}'
+  args: '-serial unix:/var/run/qemu-server/<vmid>.serial,server,nowait'
+
+
+  # Specifies the VM name. Only used on the configuration web interface.
+  # Required only for state=present.
+  name: ''
+  # Target node. Only allowed if the original VM is on shared storage. Used only with clone
+  target: ''
+  # Specify the description for the VM. Only used on the configuration web interface.
+  description: '{{ global_description }}'
+
+  # Specify if the VM should be automatically restarted after crash (currently ignored in PVE API).
+  # This option has no default unless proxmox_default_behavior is set to compatiblity; then the default is false
+  autostart: 'true'
+  # Name of VM to be cloned. VM template name
+  clone: ''
+  # Memory size in MB for instance.
+  memory: '1024'
+  # Specify number of cores per socket.
+  cores: '1'
+  # Specify emulated CPU type. kvm64 or host
+  cpu: 'host'
+  # Specifies the SCSI controller model.
+  # virtio-scsi-pci for better performance
+  scsihw: 'virtio-scsi-pci'
+  # Add the new VM to the specified pool.
+  pool: ''
+  # Specifies guest operating system. This is used to enable special optimization/features for specific operating systems.
+  # The l26 is Linux 2.6/3.X Kernel.
+  # Choices:
+  # - "other"
+  # - "wxp"
+  # - "w2k"
+  # - "w2k3"
+  # - "w2k8"
+  # - "wvista"
+  # - "win7"
+  # - "win8"
+  # - "win10"
+  # - "win11"
+  # - "l24"
+  # - "l26"
+  # - "solaris"
+  ostype: 'other'
+  # A hash/dictionary of volume used as SCSI hard disk or CD-ROM. scsi='{"key":"value", "key":"value"}'.
+  # Keys allowed are - sata[n] where 0 ≤ n ≤ 13.
+  # Values allowed are - "storage:size,format=value".
+  # storage is the storage identifier where to create the disk.
+  # size is the size of the disk in GB.
+  # format is the drive’s backing file’s data format. qcow2|raw|subvol. 
+  scsi: ''
+
+  # A hash/dictionary of network interfaces for the VM. net='{"key":"value", "key":"value"}'.
+  # Keys allowed are - net[n] where 0 ≤ n ≤ N.
+  # Values allowed are - "model="XX:XX:XX:XX:XX:XX",bridge="value",rate="value",tag="value",firewall="1|0",trunks="vlanid"".
+  # Model is one of e1000 e1000-82540em e1000-82544gc e1000-82545em i82551 i82557b i82559er ne2k_isa ne2k_pci pcnet rtl8139 virtio vmxnet3.
+  # XX:XX:XX:XX:XX:XX should be an unique MAC address. This is automatically generated if not specified.
+  # The bridge parameter can be used to automatically add the interface to a bridge device. The Proxmox VE standard bridge is called ‘vmbr0’.
+  # Option rate is used to limit traffic bandwidth from and to this interface. It is specified as floating point number, unit is ‘Megabytes per second’.
+  # If you specify no bridge, we create a kvm ‘user’ (NATed) network device, which provides DHCP and DNS services.
+  net: '{"net0":"virtio,bridge=vmbr1,firewall=1"}'
+
+  # Specifies whether a VM will be started during system bootup.
+  onboot: 'yes'
+
+
+
+
+  ##==============cloudinit specified===============##
+  # cloud-init: Set the IP configuration.
+  # A hash/dictionary of network ip configurations. ipconfig='{"key":"value", "key":"value"}'.
+  ipconfig: ''
+  # cloud-init: DNS server IP address(es).
+  # If unset, PVE host settings are used.
+  nameservers: ''
+
+  # cloud-init: Sets DNS search domain(s).
+  # If unset, PVE host settings are used.
+  searchdomains: ''
+  # cloud-init: SSH key to assign to the default user. NOT TESTED with multiple keys but a multi-line value should work.
+  sshkeys: ''
+  # cloud-init: Specify custom files to replace the automatically generated ones at start.
+  cicustom: ''
+  # cloud-init: username of default user to create.
+  ciuser: ''
+  # cloud-init: password of default user to create.
+  cipassword: ''
+  # cloud-init: Specifies the cloud-init configuration format.
+  # The default depends on the configured operating system type (ostype).
+  # We use the nocloud format for Linux, and configdrive2 for Windows.
+  citype: ''
+  ##==============cloudinit specified===============##
+  
+  # Specify the amount of RAM for the VM in MB.
+  # Using zero disables the balloon driver.
+  balloon: '0'
+  migrate_downtime: ''
+  migrate_speed: ''
+
+
+  # Specify if CPU usage will be limited. Value 0 indicates no CPU limit.
+  # If the computer has 2 CPUs, it has total of ‘2’ CPU time
+  cpulimit: ''
+
+  # Specify CPU weight for a VM.
+  # You can disable fair-scheduler configuration by setting this to 0
+  cpuunits: '1000'
+
+  # Specify a list of settings you want to delete.
+  delete: ''
+
+
+
+  # Specify if to prevent changes if current configuration file has different SHA1 digest.
+  # This can be used to prevent concurrent modifications.
+  digest: ''
+
+  # Set force to empty value because of a bug
+  force: ''
+
+  # Create a full copy of all disk. This is always done when you clone a normal VM.
+  # For VM templates, we try to create a linked clone by default.
+  # Used only with clone
+  full: 'true'
+
+  # Specify the BIOS implementation.
+  # Choices:
+  # - "seabios"
+  # - "ovmf"
+  bios: ''
+
+  # Boot from disk and network
+  boot: 'cnd'
+  # Enable booting from specified disk. (ide|sata|scsi|virtio\d+)
+  bootdisk: 'scsi0'
+
+  # Target drive’s backing file’s data format.
+  # Used only with clone
+  # Use format=unspecified and full=false for a linked clone.
+  format: 'unspecified'
+
+  # Specify if PVE should freeze CPU at startup (use ‘c’ monitor command to start execution).
+  freeze: ''
+
+  #  This option allows direct access to host hardware. So it is no longer possible to migrate such machines - use with special care.
+  hostpci: ''
+
+  # Disable hotplug for 'network', 'disk', 'cpu', 'memory' and 'usb'
+  hotplug: '0'
+
+  # Enable/disable hugepages memory.
+  hugepages: ''
+
+  # A hash/dictionary of volume used as IDE hard disk or CD-ROM. ide='{"key":"value", "key":"value"}'.
+  ide: ''
+
+  # Sets the keyboard layout for VNC server.
+  keyboard: '{{ global_keyboard }}'
+
+  # Enable/disable KVM hardware virtualization.
+  kvm: 'yes'
+
+  # Sets the real time clock to local time.
+  # This is enabled by default if ostype indicates a Microsoft OS.
+  localtime: ''
+
+  # Lock/unlock the VM.
+  # Choices:
+  # - "migrate"
+  # - "backup"
+  # - "snapshot"
+  # - "rollback"
+  lock: ''
+
+  # Specifies the Qemu machine type.
+  machine: ''
+
+  # VMID for the clone. Used only with clone.
+  # If newid is not set, the next available VM ID will be fetched from ProxmoxAPI.
+  newid: ''
+
+  # Proxmox VE node on which to operate.
+  # Only required for state=present.
+  # For every other states it will be autodiscovered.
+  node: '{{ global_node }}'
+
+  numa: ''
+  numa_enabled: ''
+
+
+  parallel: ''
+
+  # Enable/disable the protection flag of the VM. This will enable/disable the remove VM and remove disk operations.
+  protection: ''
+
+  # The value compatibility (default before community.general 4.0.0) will ensure that the default values are used when the values are not explicitly specified by the user.
+  # The new default is no_defaults, which makes sure these options have no defaults.
+  proxmox_default_behavior: 'no_defaults'
+
+  # Allow reboot. If set to true, the VM exit on reboot.
+  reboot: ''
+  revert: ''
+
+  # A hash/dictionary of volume used as sata hard disk or CD-ROM. sata='{"key":"value", "key":"value"}'.
+  # Keys allowed are - sata[n] where 0 ≤ n ≤ 5.
+  # Values allowed are - "storage:size,format=value".
+  # storage is the storage identifier where to create the disk.
+  # size is the size of the disk in GB.
+  # format is the drive’s backing file’s data format. qcow2|raw|subvol.
+  sata: '{"sata0":"local:10"}'
+
+  serial: ''
+  shares: ''
+  skiplock: ''
+  smbios: ''
+
+  # The name of the snapshot. Used only with clone.
+  snapname: ''
+
+  # Sets the number of CPU sockets. (1 - N).
+  sockets: '1'
+  startdate: ''
+  startup: ''
+
+  # Indicates desired state of the instance.
+  state: ''
+  # Target storage for full clone.
+  storage: 'local'
+  # Enables/disables the USB tablet device.
+  tablet: 'no'
+  # Enables/disables time drift fix.
+  tdf: ''
+  # Enables/disables the template.
+  template: 'no'
+  # Timeout for operations. Default: 30
+  timeout: '60'
+  update: ''
+  # If false, SSL certificates will not be validated.
+  validate_certs: ''
+  # Sets number of hotplugged vcpus.
+  vcpus: ''
+  vga: 'std'
+
+  # A hash/dictionary of volume used as VIRTIO hard disk. virtio='{"key":"value", "key":"value"}'.
+  # Keys allowed are - virto[n] where 0 ≤ n ≤ 15.
+  # Values allowed are - "storage:size,format=value".
+  # storage is the storage identifier where to create the disk.
+  # size is the size of the disk in GB.
+  # format is the drive’s backing file’s data format. qcow2|raw|subvol. 
+  virtio: ''
+  # Specifies the instance ID.
+  # If not set the next available ID will be fetched from ProxmoxAPI.
+  vmid: ''
+  # Creates a virtual hardware watchdog device.
+  watchdog: ''

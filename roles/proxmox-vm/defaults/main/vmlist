@@ -1,0 +1,20 @@
+---
+# See globals.yml for all variables 
+vm_list:
+  - name: ansible-vm-test
+    cores: 1
+    memory: 2048
+    clone: 'template-ubuntu2204-ci'
+    #ostype: 'l26'
+    target: 'home-proxmox'
+    pool: 'test-local'
+    ipconfig:
+      ipconfig0: 'ip=dhcp'
+      #ipconfig0: 'ip=192.168.1.2/26, gw=192.168.1.1'
+    net:
+      net0: 'virtio,bridge=vmbr1'
+    searchdomains: 'homelab.mylocal'
+    nameservers: '192.168.1.1'
+    ciuser: 'root'
+    cipassword: 'CHANGEME123' # password of the new vm, no need to specify it if using ssh key
+    sshkeys: 'ssh-rsa AxxxxCM= root@my-pc'

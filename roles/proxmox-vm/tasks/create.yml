@@ -1,0 +1,148 @@
+---
+- name: Clone VMs on Proxmox
+  community.general.proxmox_kvm:
+     api_host: "{{ item['api_host'] if item.get('api_host') else ( global['api_host'] if global['api_host'] else omit ) }}"
+     api_password: "{{ item['api_password'] if item.get('api_password') else ( global['api_password'] if global['api_password'] else omit ) }}"
+     api_user: "{{ item['api_user'] if item.get('api_user') else ( global['api_user'] if global['api_user'] else omit ) }}"
+     newid: "{{ item['newid'] if item.get('newid') else ( global['newid'] if global['newid'] else omit ) }}"
+     node: "{{ item['node'] if item.get('node') else ( global['node'] if global['node'] else omit ) }}"     
+     name: "{{ item['name'] if item.get('name') else ( global['name'] if global['name'] else omit ) }}"
+     clone: "{{ item['clone'] if item.get('clone') else ( global['clone'] if global['clone'] else omit ) }}"
+     net: "{{ item['net'] if item.get('net') else ( global['net'] if global['net'] else omit ) }}"
+     # net, virtio, ide, sata, scsi are disabled as per module documentation
+     #virtio: "{{ item['virtio'] if item.get('virtio') else ( global['virtio'] if global['virtio'] else omit ) }}"
+     #ide: "{{ item['ide'] if item.get('ide') else ( global['ide'] if global['ide'] else omit ) }}"
+     #sata: "{{ item['sata'] if item.get('sata') else ( global['sata'] if global['sata'] else omit ) }}"
+     #scsi: "{{ item['scsi'] if item.get('scsi') else ( global['scsi'] if global['scsi'] else omit ) }}"
+     target: "{{ item['target'] if item.get('target') else ( global['target'] if global['target'] else omit ) }}"
+     full: yes
+     format: unspecified
+     timeout: 300
+  delegate_to: localhost
+  with_items: "{{ vm_list | default([]) }}"
+  register: present_state
+
+- name: Wait for clone
+  ansible.builtin.wait_for:
+    timeout: 5
+  delegate_to: localhost
+  when: present_state.changed
+
+
+- name: Update VMs on Proxmox
+  community.general.proxmox_kvm:
+     api_host: "{{ item['api_host'] if item.get('api_host') else ( global['api_host'] if global['api_host'] else omit ) }}"
+     api_password: "{{ item['api_password'] if item.get('api_password') else ( global['api_password'] if global['api_password'] else omit ) }}"
+     api_user: "{{ item['api_user'] if item.get('api_user') else ( global['api_user'] if global['api_user'] else omit ) }}"
+     cores: "{{ item['cores'] if item.get('cores') else global['cores'] }}"
+     sockets: "{{ item['sockets'] if item.get('sockets') else global['sockets'] }}"
+     memory: "{{ item['memory'] if item.get('memory') else global['memory'] }}"
+     update: yes
+     vmid: "{{ item['vmid'] if item.get('vmid') else ( global['vmid'] if global['vmid'] else omit ) }}"
+     node: "{{ item['node'] if item.get('node') else ( global['node'] if global['node'] else omit ) }}"
+     name: "{{ item['name'] if item.get('name') else ( global['name'] if global['name'] else omit ) }}"
+     description: "{{ item['description'] if item.get('description') else ( global['description'] if global['description'] else omit ) }}"
+     boot: "{{ item['boot'] if item.get('boot') else global['boot'] }}"
+     bootdisk: "{{ item['bootdisk'] if item.get('bootdisk') else ( global['bootdisk'] if global['bootdisk'] else omit ) }}"
+     #target: "{{ item['target'] if item.get('target') else ( global['target'] if global['target'] else omit ) }}"
+     pool: "{{ item['pool'] if item.get('pool') else ( global['pool'] if global['pool'] else omit ) }}"
+     agent: "{{ item['agent'] if item.get('agent') else ( global['agent'] if global['agent'] else omit ) }}"
+     acpi: "{{ item['acpi'] if item.get('acpi') else global['acpi'] }}"
+     autostart: "{{ item['autostart'] if item.get('autostart') else global['autostart'] }}"
+     scsihw: "{{ item['scsihw'] if item.get('scsihw') else ( global['scsihw'] if global['scsihw'] else omit ) }}"
+     ostype: "{{ item['ostype'] if item.get('ostype') else global['ostype'] }}"
+     onboot: "{{ item['onboot'] if item.get('onboot') else global['onboot'] }}"
+     balloon: "{{ item['balloon'] if item.get('balloon') else global['balloon'] }}"
+     cpuunits: "{{ item['cpuunits'] if item.get('cpuunits') else global['cpuunits'] }}"
+     hotplug: "{{ item['hotplug'] if item.get('hotplug') else ( global['hotplug'] if global['hotplug'] else omit ) }}"
+     kvm: "{{ item['kvm'] if item.get('kvm') else global['kvm'] }}"
+     proxmox_default_behavior: "{{ item['proxmox_default_behavior'] if item.get('proxmox_default_behavior') else global['proxmox_default_behavior'] }}"
+     storage: "{{ item['storage'] if item.get('storage') else ( global['storage'] if global['storage'] else omit ) }}"
+     # cloudinit config
+     ipconfig: "{{ item['ipconfig'] if item.get('ipconfig') else ( global['ipconfig'] if global['ipconfig'] else omit ) }}"
+     nameservers: "{{ item['nameservers'] if item.get('nameservers') else ( global['nameservers'] if global['nameservers'] else omit ) }}"
+     searchdomains: "{{ item['searchdomains'] if item.get('searchdomains') else ( global['searchdomains'] if global['searchdomains'] else omit ) }}"
+     sshkeys: "{{ item['sshkeys'] if item.get('sshkeys') else ( global['sshkeys'] if global['sshkeys'] else omit ) }}"
+     cicustom: "{{ item['cicustom'] if item.get('cicustom') else ( global['cicustom'] if global['cicustom'] else omit ) }}"
+     ciuser: "{{ item['ciuser'] if item.get('ciuser') else ( global['ciuser'] if global['ciuser'] else omit ) }}"
+     cipassword: "{{ item['cipassword'] if item.get('cipassword') else ( global['cipassword'] if global['cipassword'] else omit ) }}"
+     citype: "{{ item['citype'] if item.get('citype') else ( global['citype'] if global['citype'] else omit ) }}"
+  delegate_to: localhost
+  with_items: "{{ vm_list | default([]) }}"
+  register: update_state
+  when: present_state.changed
+
+- name: Wait for update
+  ansible.builtin.wait_for:
+    timeout: 10
+  delegate_to: localhost
+  when: update_state.changed
+
+#################################
+# Resize bootdisk with api start
+#################################
+# get VMID
+- name: get VM state
+  proxmox_kvm:
+    api_host: "{{ item['api_host'] if item.get('api_host') else global['api_host'] }}"
+    api_user: "{{ item['api_user'] if item.get('api_user') else global['api_user'] }}"
+    api_password: "{{ item['api_password'] if item.get('api_password') else global['api_password'] }}"
+    node: "{{ item['node'] if item.get('node') else global['node'] }}"
+    name: "{{ item['name'] if item.get('name') else global['name'] }}"
+    state: current
+  with_items: "{{ vm_list | default([]) }}"
+  register: result
+
+#- debug: 
+#    msg: "vmid is==>{{item.vmid}}"
+#  with_items: "{{ result.results }}"
+
+# Authentication
+- name: authentication
+  uri:
+    url: "https://{{ global['api_host'] }}:8006/api2/json/access/ticket"
+    method: POST
+    validate_certs: no
+    body_format: form-urlencoded
+    body:
+      username: "{{ global['api_user'] }}"
+      password: "{{ global['api_password'] }}"
+  register: auth
+
+# Resize disk
+- name: resize disk
+  uri:
+    url: "https://{{ global['api_host'] }}:8006/api2/json/nodes/{{ global['node'] }}/qemu/{{ item.vmid }}/resize"
+    method: PUT
+    validate_certs: no
+    headers: 
+      Cookie: "PVEAuthCookie={{ auth.json.data.ticket }}"
+      CSRFPreventionToken: "{{ auth.json.data.CSRFPreventionToken }}"
+    body_format: form-urlencoded
+    body:
+      disk: scsi0
+      size: 10G
+  with_items: "{{ result.results }}"
+
+#################################
+# Resize bootdisk with api end
+#################################
+
+- name: Start VMs on Proxmox
+  community.general.proxmox_kvm:
+     api_host: "{{ item['api_host'] if item.get('api_host') else ( global['api_host'] if global['api_host'] else omit ) }}"
+     api_password: "{{ item['api_password'] if item.get('api_password') else ( global['api_password'] if global['api_password'] else omit ) }}"
+     api_user: "{{ item['api_user'] if item.get('api_user') else ( global['api_user'] if global['api_user'] else omit ) }}"
+     name: "{{ item['name'] if item.get('name') else ( global['name'] if global['name'] else omit ) }}"
+     node: "{{ item['node'] if item.get('node') else ( global['node'] if global['node'] else omit ) }}"
+     state: started
+  delegate_to: localhost
+  with_items: "{{ vm_list | default([]) }}"
+  register: started_state
+
+
+- name: Wait for start
+  ansible.builtin.wait_for:
+    timeout: 10
+  delegate_to: localhost
+  when: started_state.changed

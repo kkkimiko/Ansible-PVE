@@ -1,0 +1,4 @@
+# skip ansible as I've already installed
+# ansible>=2.9.20
+proxmoxer>=1.0.4
+requests>=2.22.0

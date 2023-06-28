@@ -1,0 +1,54 @@
+---
+- name: Create new disk scsi1 in VM (do not rewrite in case it exists already)
+  community.general.proxmox_disk:
+    api_host: "{{ global['api_host'] }}"
+    api_password: "{{ global['api_password'] }}"
+    api_user: "{{ global['api_user'] }}"
+    name: "{{ item['name'] if item.get('name') else ( global['name'] if global['name'] else omit ) }}"
+    disk: scsi1
+    backup: true
+    cache: none
+    storage: "{{ item['storage'] if item.get('storage') else ( global['storage'] if global['storage'] else omit ) }}"
+    size: "{{ item['size'] if item.get('size') else global['size'] }}"
+    #create: forced
+    state: present
+  connection: local
+  delegate_to: localhost
+  with_items: "{{ vm_list | default([]) }}"
+
+- name: Restart VMs
+  community.general.proxmox_kvm:
+     api_host: "{{ global['api_host'] }}"
+     api_password: "{{ global['api_password'] }}"
+     api_user: "{{ global['api_user'] }}"
+     args: "{{ item['args'] if item.get('args') else ( global['args'] if global['args'] else omit ) }}"
+     name: "{{ item['name'] if item.get('name') else ( global['name'] if global['name'] else omit ) }}"
+     state: restarted
+     validate_certs: no
+  connection: local
+  delegate_to: localhost
+  with_items: "{{ vm_list | default([]) }}"
+  register: present_state
+
+- name: Wait for restart
+  ansible.builtin.wait_for:
+    timeout: 20
+  connection: local
+  delegate_to: localhost
+  when: present_state.changed
+
+- name: Create list of mounted devices
+  set_fact:
+    mounted_devices: "{{ ansible_mounts | map(attribute='device') | list }}"
+- name: Create File System
+  filesystem:
+    fstype: ext4
+    dev: "{{ mount_src }}"
+  #when: mount_src not in mounted_devices
+- name: Mount File System
+  mount:
+    path: "{{ mount_path }}"
+    src: "{{ mount_src }}"
+    fstype: ext4
+    state: mounted
+  #when: mount_src not in mounted_devices

@@ -1,0 +1,4 @@
+---
+- hosts: vm_mount
+  roles:
+    - disk-mount

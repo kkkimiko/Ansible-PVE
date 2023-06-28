@@ -1,0 +1,15 @@
+---
+# See globals.yml for all variables 
+vm_list:
+  - hostname: ansible-ct-test
+    cores: 1
+    memory: 2048
+    ostemplate: 'local:vztmpl/ubuntu-standard_amd64.tar.zst'
+    pool: 'test-local'
+    disk: 5
+    netif:
+      net0: 'name=eth0,ip=dhcp,bridge=vmbr1'
+    searchdomain: 'homelab.mylocal'
+    nameserver: '192.168.1.1'
+    password: 'CHANGEME123'
+    pubkey: 'ssh-rsa AAAABXXXCM= root@MY-PC'

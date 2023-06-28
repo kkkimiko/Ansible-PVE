@@ -1,0 +1,21 @@
+---
+mount_src: /dev/sdb
+mount_path: /data
+
+global_api_host: '<your-proxmox-host-ip>'
+
+# Overwrite default variables for all VMs
+global:
+  api_host: '{{ global_api_host }}'
+  api_password: '{{ credentials.password if credentials.get("password") else lookup("env","PROXMOX_PASSWORD") }}'
+  api_user: '{{ credentials.username if credentials.get("username") else lookup("env","PROXMOX_USER") }}'
+  api_token_secret: '{{ credentials.api_token_secret if credentials.get("api_token_secret") else lookup("env","PROXMOX_TOKEN_SECRET") }}'
+  api_token_id: '{{ credentials.api_token_id if credentials.get("api_token_id") else lookup("env","PROXMOX_TOKEN_ID") }}'
+  args: '-serial unix:/var/run/qemu-server/<vmid>.serial,server,nowait'
+
+vm_list:
+  # name should be the VM name (proxmox refers to this name to locate the corresponding VM) which you want to add new disk storage
+  - name: ansible-vm-test
+    # New scsi1 disk size (GB)
+    size: 10
+    storage: 'local'

@@ -1,0 +1,7 @@
+---
+# Set these parameters in a vault file and delete this file
+credentials:
+  username: 'root@pam'
+  password: CHANGEME
+  #api_token_id: yourtokenid@pxxxtokid
+  #api_token_secret: 12xxxxxxxxx90

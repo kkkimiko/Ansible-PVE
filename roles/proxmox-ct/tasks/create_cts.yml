@@ -1,0 +1,40 @@
+---
+- name: Create container for PVE
+  community.general.proxmox:
+    node: "{{ item['node'] if item.get('node') else ( global['node'] if global['node'] else omit ) }}"
+    api_user: "{{ item['api_user'] if item.get('api_user') else ( global['api_user'] if global['api_user'] else omit ) }}"
+    api_password: "{{ item['api_password'] if item.get('api_password') else ( global['api_password'] if global['api_password'] else omit ) }}"
+    api_host: "{{ item['api_host'] if item.get('api_host') else ( global['api_host'] if global['api_host'] else omit ) }}"
+    hostname: "{{ item['hostname'] if item.get('hostname') else ( global['hostname'] if global['hostname'] else omit ) }}"
+    password: "{{ item['password'] if item.get('password') else ( global['password'] if global['password'] else omit ) }}"
+    pubkey: "{{ item['pubkey'] if item.get('pubkey') else ( global['pubkey'] if global['pubkey'] else omit ) }}"
+    cores: "{{ item['cores'] if item.get('cores') else global['cores'] }}"
+    memory: "{{ item['memory'] if item.get('memory') else global['memory'] }}"
+    swap: "{{ item['swap'] if item.get('swap') else global['swap'] }}"
+    disk: "{{ item['disk'] if item.get('disk') else ( global['disk'] if global['disk'] else omit ) }}"
+    storage: "{{ item['storage'] if item.get('storage') else ( global['storage'] if global['storage'] else omit ) }}"
+    unprivileged: "{{ item['unprivileged'] if item.get('unprivileged') else ( global['unprivileged'] if global['unprivileged'] else omit ) }}"
+    description: "{{ item['description'] if item.get('description') else global['description'] }}"
+    ostemplate: "{{ item['ostemplate'] if item.get('ostemplate') else global['ostemplate'] }}"
+    searchdomain: "{{ item['searchdomain'] if item.get('searchdomain') else global['searchdomain'] }}"
+    nameserver: "{{ item['nameserver'] if item.get('nameserver') else global['nameserver'] }}"
+    proxmox_default_behavior: "{{ item['proxmox_default_behavior'] if item.get('proxmox_default_behavior') else global['proxmox_default_behavior'] }}"
+    onboot: "{{ item['onboot'] if item.get('onboot') else global['onboot'] }}"
+    netif: "{{ item['netif'] if item.get('netif') else global['netif'] }}"
+    features: "{{ item['features'] if item.get('features') else global['features'] }}"
+  delegate_to: localhost
+  with_items: "{{ vm_list | default([]) }}"
+  tags:
+  - create
+
+- name: Start container for PVE
+  community.general.proxmox:
+    hostname: "{{ item['hostname'] if item.get('hostname') else ( global['hostname'] if global['hostname'] else omit ) }}"
+    node: "{{ item['node'] if item.get('node') else ( global['node'] if global['node'] else omit ) }}"
+    api_user: "{{ item['api_user'] if item.get('api_user') else ( global['api_user'] if global['api_user'] else omit ) }}"
+    api_password: "{{ item['api_password'] if item.get('api_password') else ( global['api_password'] if global['api_password'] else omit ) }}"
+    api_host: "{{ item['api_host'] if item.get('api_host') else ( global['api_host'] if global['api_host'] else omit ) }}"
+    state: started
+  with_items: "{{ vm_list | default([]) }}"
+  tags:
+  - start

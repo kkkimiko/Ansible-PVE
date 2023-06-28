@@ -1,0 +1,88 @@
+---
+# TL;DR variables for quick use
+global_api_host: '<proxmox-host-ip>'
+global_description: "Created with Ansible on {{ ansible_date_time.date }}"
+global_node: 'test-local'
+global_keyboard: ''
+
+# Overwrite default variables for all containers
+global:
+
+  api_host: '{{ global_api_host }}'
+  api_password: '{{ credentials.password if credentials.get("password") else lookup("env","PROXMOX_PASSWORD") }}'
+  api_user: '{{ credentials.username if credentials.get("username") else lookup("env","PROXMOX_USER") }}'
+  #api_token_secret: '{{ credentials.api_token_secret if credentials.get("api_token_secret") else lookup("env","PROXMOX_TOKEN_SECRET") }}'
+  #api_token_id: '{{ credentials.api_token_id if credentials.get("api_token_id") else lookup("env","PROXMOX_TOKEN_ID") }}'
+
+  # Specifies the container name. Only used on the configuration web interface.
+  # Required only for state=present.
+  hostname: ''
+
+  # Specify the description for the container. Only used on the configuration web interface.
+  description: '{{ global_description }}'
+
+  # ID of the container to be cloned.
+  clone: ''
+  # Type of the clone created. opportunistic creates a linked clone if the cloned container is a template container, and a full clone if not. 
+  clone_type: ''
+  # Memory size in MB for instance.
+  memory: '1024'
+  # Specify number of cores per socket.
+  cores: '1'
+  # numbers of allocated cpus for instance
+  cpus: '1'
+  swap: '0'
+  # Add the new container to the specified pool.
+  pool: ''
+
+  # A hash/dictionary of network interfaces for the container. net='{"key":"value", "key":"value"}'.
+  # Keys allowed are - net[n] where 0 ≤ n ≤ N.
+  # Values allowed are - "model="XX:XX:XX:XX:XX:XX",bridge="value",rate="value",tag="value",firewall="1|0",trunks="vlanid"".
+  # Model is one of e1000 e1000-82540em e1000-82544gc e1000-82545em i82551 i82557b i82559er ne2k_isa ne2k_pci pcnet rtl8139 virtio vmxnet3.
+  # XX:XX:XX:XX:XX:XX should be an unique MAC address. This is automatically generated if not specified.
+  # The bridge parameter can be used to automatically add the interface to a bridge device. The Proxmox VE standard bridge is called ‘vmbr0’.
+  # Option rate is used to limit traffic bandwidth from and to this interface. It is specified as floating point number, unit is ‘Megabytes per second’.
+  # If you specify no bridge, we create a kvm ‘user’ (NATed) network device, which provides DHCP and DNS services.
+  netif: '{"net0":"name=eth0,ip=dhcp,bridge=vmbr1"}'
+
+  # Specifies whether a container will be started during system bootup.
+  onboot: 'yes'
+
+  # sets DNS server IP address for a container
+  nameserver: ''
+
+  # sets DNS search domain for a container
+  searchdomain: ''
+  # Public key to add to /root/.ssh/authorized_keys.
+  pubkey: ''
+  # the instance root password
+  password: ''
+
+  # This option was previously described as “hard disk size in GB for instance” however several formats describing a lxc mount are permitted.
+  disk: '3'
+  mounts: ''
+  # forcing operations
+  # can be used only with states present, stopped, restarted
+  force: 'no'
+  # Script that will be executed during various steps in the containers lifetime.
+  hookscript: ''
+  # specifies the address the container will be assigned
+  ip_address: ''
+
+  node: '{{ global_node }}'
+
+  # the template for VM creating
+  ostemplate: ''
+  # Indicates desired state of the instance.
+  state: ''
+  # Target storage for full clone.
+  storage: 'local'
+  # List of tags to apply to the container.
+  # Tags must start with [a-z0-9_] followed by zero or more of the following characters [a-z0-9_-+.].
+  tags: ''
+  timeout: '30'
+  unprivileged: 'yes'
+  validate_certs: 'no'
+  vmid: ''
+  proxmox_default_behavior: 'no_defaults'
+  features: ''
