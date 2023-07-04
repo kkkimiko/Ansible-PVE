@@ -24,7 +24,7 @@
 
 - name: Wait for clone
   ansible.builtin.wait_for:
-    timeout: 5
+    timeout: 10
   delegate_to: localhost
   when: present_state.changed
 
