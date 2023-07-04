@@ -121,7 +121,7 @@
     body_format: form-urlencoded
     body:
       disk: scsi0
-      size: 10G
+      size: "{{ global['disk_size'] }}"
   with_items: "{{ result.results }}"
 
 #################################
