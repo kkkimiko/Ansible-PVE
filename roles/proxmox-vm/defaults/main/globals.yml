@@ -4,6 +4,7 @@ global_api_host: '<your-proxmox-host-ip>'
 global_description: "Created with Ansible on {{ ansible_date_time.date }}"
 global_node: '<your-proxmox-node>'
 global_keyboard: ''
+global_disk_size: 10G
 
 # Overwrite default variables for all VMs
 global:
@@ -17,6 +18,7 @@ global:
   api_token_secret: '{{ credentials.api_token_secret if credentials.get("api_token_secret") else lookup("env","PROXMOX_TOKEN_SECRET") }}'
   api_token_id: '{{ credentials.api_token_id if credentials.get("api_token_id") else lookup("env","PROXMOX_TOKEN_ID") }}'
   args: '-serial unix:/var/run/qemu-server/<vmid>.serial,server,nowait'
+  disk_size: '{{ global_disk_size }}'
 
 
   # Specifies the VM name. Only used on the configuration web interface.
