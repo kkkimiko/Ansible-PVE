@@ -3,3 +3,13 @@
   connection: local
   roles:
   - proxmox-vm
+  vars:
+    - global_disk_size: 15G
+    - vm_list:
+      - name: vm-tmp
+        cores: 2
+        memory: 4096
+        clone: 'template-ubuntu2204-ci'
+        ipconfig:
+          ipconfig0: 'ip=dhcp'
+          #ipconfig0: 'ip=192.168.1.2/26, gw=192.168.1.1
